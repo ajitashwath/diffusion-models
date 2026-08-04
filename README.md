@@ -1,10 +1,10 @@
-# Denoising Diffusion Probabilistic Models (DDPM) from Scratch
+# DDPM from Scratch
 A from-scratch PyTorch implementation of DDPM, following [Ho et al., 2020](https://arxiv.org/abs/2006.11239). Built as a single Jupyter notebook (`ddpm.ipynb`) that trains a small U-Net to generate Fashion-MNIST images.
 
 ## What's implemented
-- **Forward (diffusion) process** — Eq. (2) and Eq. (4): closed-form noising of an image to any timestep `t`
-- **Simplified training objective** — Eq. (14), Algorithm 1: train a network to predict the noise added to an image
-- **Reverse (sampling) process** — Algorithm 2: iteratively denoise from pure Gaussian noise back to an image
+- **Forward (diffusion) process**: Eq. (2) and Eq. (4): closed-form noising of an image to any timestep `t`
+- **Simplified training objective**: Eq. (14), Algorithm 1: train a network to predict the noise added to an image
+- **Reverse (sampling) process**: Algorithm 2: iteratively denoise from pure Gaussian noise back to an image
 - **A small U-Net** with a sinusoidal timestep embedding (Section 4, Appendix B)
 
 **Dataset:** Fashion-MNIST (28x28 grayscale)
@@ -13,19 +13,19 @@ A from-scratch PyTorch implementation of DDPM, following [Ho et al., 2020](https
 This notebook skips: EMA, learned variances, self-attention blocks, multi-GPU training, and the other scaling tricks from the paper's appendix.
 
 ## Notebook walkthrough
-1. **Setup** — imports and device selection (CUDA if available, else CPU)
-2. **Data** — loads Fashion-MNIST, scales pixel values from `[0, 255]` to `[-1, 1]` as in Section 3.3 of the paper
-3. **Forward (noising) process** — implements `q_sample` (Eq. 4) using a linear beta schedule (`β₁=1e-4 → β_T=0.02`, `T=1000`), plus a visualization of an image getting progressively noised to confirm it becomes indistinguishable from pure noise
-4. **U-Net** — a compact U-Net (`SimpleUNet`) built from:
+1. **Setup**: Imports and device selection (CUDA if available, else CPU)
+2. **Data**: Loads Fashion-MNIST, scales pixel values from `[0, 255]` to `[-1, 1]` as in Section 3.3 of the paper
+3. **Forward (noising) process**: Implements `q_sample` (Eq. 4) using a linear beta schedule (`β₁=1e-4 → β_T=0.02`, `T=1000`), plus a visualization of an image getting progressively noised to confirm it becomes indistinguishable from pure noise
+4. **U-Net**: A compact U-Net (`SimpleUNet`) built from:
    - A sinusoidal timestep embedding (like Transformer positional embeddings)
    - Residual blocks with GroupNorm + SiLU activations
    - A down (28 → 14 → 7) → bottleneck → up (7 → 14 → 28) path with skip connections
    - Nearest-neighbor upsampling instead of transposed convolutions
    - No self-attention (unnecessary at this resolution/channel count)
-5. **Training objective** — the simplified loss (Eq. 14): MSE between the true noise and the network's predicted noise
-6. **Training loop** — trains for 15 epochs (configurable) with Adam (`lr = 2e-4`), plotting the loss curve
-7. **Sampling** — implements Algorithm 2, generating new images by iteratively denoising from `x_T ~ N(0, I)` down to `x_0`
-8. **Progressive generation** — visualizes the reverse process at intermediate timesteps, showing the paper's coarse-to-fine generation pattern (Section 4.3, Figure 6)
+5. **Training objective**: The simplified loss (Eq. 14): MSE between the true noise and the network's predicted noise
+6. **Training loop**: Trains for 15 epochs (configurable) with Adam (`lr = 2e-4`), plotting the loss curve
+7. **Sampling**: Implements Algorithm 2, generating new images by iteratively denoising from `x_T ~ N(0, I)` down to `x_0`
+8. **Progressive generation**: Visualizes the reverse process at intermediate timesteps, showing the paper's coarse-to-fine generation pattern (Section 4.3, Figure 6)
 
 ## Requirements
 ```
